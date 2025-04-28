@@ -13,46 +13,24 @@
 @if (isAdmin)
 {
     <p>
-        <a asp-action="Create">Create New</a>
+        <a class="btn btn-outline-primary" asp-action="Create">Create New</a>
     </p>
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PriceGBP)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PriceGBP)
-                </td>
-                @if (isAdmin)
-                {
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                    </td>
-                }
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="d-lg-flex justify-content-evenly">
+    @foreach(StoreItem item in Model)
+    {
+        <div class="d-grid flex-grow-1 border align-content-center rounded-2 p-3 m-2">
+            <span class="text-center h3">@Html.DisplayFor(modelItem => item.Name)</span>
+            <span class="h5">£@Html.DisplayFor(modelItem => item.PriceGBP)</span>
+            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.Id">View More...</a>
+            @if (isAdmin)
+            {
+                <div class="border p-2 mt-2 text-center">
+                    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@item.Id">Edit</a>
+                    <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </div>
+            }
+        </div>
+    }
+</div>
