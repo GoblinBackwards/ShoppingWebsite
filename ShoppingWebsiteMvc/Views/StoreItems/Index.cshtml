@@ -17,13 +17,14 @@
     </p>
 }
 
-<div class="d-lg-flex justify-content-evenly">
+<div class="d-md-flex justify-content-evenly">
     @foreach(StoreItem item in Model)
     {
         <div class="d-grid flex-grow-1 border align-content-center rounded-2 p-3 m-2">
             <span class="text-center h3">@Html.DisplayFor(modelItem => item.Name)</span>
             <span class="h5">£@Html.DisplayFor(modelItem => item.PriceGBP)</span>
-            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.Id">View More...</a>
+            <a class="btn btn-outline-primary mb-2" asp-action="Details" asp-route-id="@item.Id">View More</a>
+            <a class="btn btn-success" asp-controller="Cart" asp-action="Add" asp-route-itemId="@item.Id">Add To Cart <i class="fa-solid fa-cart-plus"></i></a>
             @if (isAdmin)
             {
                 <div class="border p-2 mt-2 text-center">

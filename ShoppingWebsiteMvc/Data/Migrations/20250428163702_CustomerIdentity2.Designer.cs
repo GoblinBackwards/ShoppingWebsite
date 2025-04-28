@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ShoppingWebsiteMvc.Data;
 
@@ -11,9 +12,11 @@ using ShoppingWebsiteMvc.Data;
 namespace ShoppingWebsiteMvc.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250428163702_CustomerIdentity2")]
+    partial class CustomerIdentity2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,25 +162,7 @@ namespace ShoppingWebsiteMvc.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ShoppingWebsiteMvc.Models.CartItem", b =>
-                {
-                    b.Property<string>("CustomerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("ItemId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.HasKey("CustomerId", "ItemId");
-
-                    b.HasIndex("ItemId");
-
-                    b.ToTable("CartItem");
-                });
-
-            modelBuilder.Entity("ShoppingWebsiteMvc.Models.CustomerIdentityUser", b =>
+            modelBuilder.Entity("ShoppingWebsiteMvc.Data.CustomerIdentityUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -250,6 +235,9 @@ namespace ShoppingWebsiteMvc.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("CustomerIdentityUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -263,6 +251,8 @@ namespace ShoppingWebsiteMvc.Data.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerIdentityUserId");
 
                     b.ToTable("StoreItems");
                 });
@@ -278,7 +268,7 @@ namespace ShoppingWebsiteMvc.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("ShoppingWebsiteMvc.Models.CustomerIdentityUser", null)
+                    b.HasOne("ShoppingWebsiteMvc.Data.CustomerIdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -287,7 +277,7 @@ namespace ShoppingWebsiteMvc.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("ShoppingWebsiteMvc.Models.CustomerIdentityUser", null)
+                    b.HasOne("ShoppingWebsiteMvc.Data.CustomerIdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -302,7 +292,7 @@ namespace ShoppingWebsiteMvc.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ShoppingWebsiteMvc.Models.CustomerIdentityUser", null)
+                    b.HasOne("ShoppingWebsiteMvc.Data.CustomerIdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -311,40 +301,23 @@ namespace ShoppingWebsiteMvc.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("ShoppingWebsiteMvc.Models.CustomerIdentityUser", null)
+                    b.HasOne("ShoppingWebsiteMvc.Data.CustomerIdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ShoppingWebsiteMvc.Models.CartItem", b =>
-                {
-                    b.HasOne("ShoppingWebsiteMvc.Models.CustomerIdentityUser", "Customer")
-                        .WithMany("CartItems")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ShoppingWebsiteMvc.Models.StoreItem", "Item")
-                        .WithMany("CartItems")
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Item");
-                });
-
-            modelBuilder.Entity("ShoppingWebsiteMvc.Models.CustomerIdentityUser", b =>
-                {
-                    b.Navigation("CartItems");
-                });
-
             modelBuilder.Entity("ShoppingWebsiteMvc.Models.StoreItem", b =>
                 {
-                    b.Navigation("CartItems");
+                    b.HasOne("ShoppingWebsiteMvc.Data.CustomerIdentityUser", null)
+                        .WithMany("ItemsInCart")
+                        .HasForeignKey("CustomerIdentityUserId");
+                });
+
+            modelBuilder.Entity("ShoppingWebsiteMvc.Data.CustomerIdentityUser", b =>
+                {
+                    b.Navigation("ItemsInCart");
                 });
 #pragma warning restore 612, 618
         }

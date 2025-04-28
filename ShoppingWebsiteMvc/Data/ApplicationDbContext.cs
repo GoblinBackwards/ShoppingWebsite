@@ -4,7 +4,7 @@ using ShoppingWebsiteMvc.Models;
 
 namespace ShoppingWebsiteMvc.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<CustomerIdentityUser>
     {
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

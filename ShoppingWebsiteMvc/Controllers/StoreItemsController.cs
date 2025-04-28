@@ -48,8 +48,8 @@ namespace ShoppingWebsiteMvc.Controllers
         }
 
         // GET: StoreItems/Create
-        public IActionResult Create()
-        {
+        public IActionResult Create() {
+        
             return View();
         }
 

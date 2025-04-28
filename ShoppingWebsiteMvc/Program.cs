@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShoppingWebsiteMvc.Data;
+using ShoppingWebsiteMvc.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,17 +12,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<CustomerIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("HasRoleAdmin", policy =>
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("HasRoleAdmin", policy =>
         policy.RequireRole("admin"));
-});
 
 var app = builder.Build();
 
