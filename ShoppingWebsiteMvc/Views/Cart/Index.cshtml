@@ -1,0 +1,25 @@
+﻿@using ShoppingWebsiteMvc.Models.ViewModels
+@model CartViewModel
+
+@{
+    ViewData["Title"] = $"My Cart - {Model.Items.Length}";
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>@(Html.DisplayNameFor(a => a.Items.First().Item.Name))</td>
+            <td>@(Html.DisplayNameFor(a => a.Items.First().Quantity))</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (CartItem cartItem in Model.Items)
+        {
+            <tr>
+                <td><a asp-controller="StoreItems" asp-action="Details" asp-route-id="@cartItem.Item.Id">@cartItem.Item.Name</a></td>
+                <td>@cartItem.Quantity</td>
+                <td></td>
+            </tr>
+        }
+    </tbody>
+</table>

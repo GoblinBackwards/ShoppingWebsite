@@ -14,7 +14,6 @@ namespace ShoppingWebsiteMvc.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<StoreItem>().Property(t => t.PriceGBP).HasPrecision(10, 2);
-
             base.OnModelCreating(modelBuilder);
         }
 
