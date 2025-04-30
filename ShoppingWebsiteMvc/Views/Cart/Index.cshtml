@@ -17,8 +17,22 @@
         {
             <tr>
                 <td><a asp-controller="StoreItems" asp-action="Details" asp-route-id="@cartItem.Item.Id">@cartItem.Item.Name</a></td>
-                <td>@cartItem.Quantity</td>
-                <td></td>
+                <td>
+                    <div class="btn-group">
+                        <a class="btn btn-outline-secondary" asp-action="ChangeQuantity" asp-route-id="@cartItem.ItemId" asp-route-delta="1"><i class="fa-solid fa-plus"></i></a>
+                        <span class="btn btn-dark disabled">@cartItem.Quantity</span>
+                        @if (cartItem.Quantity > 0)
+                        {
+                            <a class="btn btn-outline-secondary" asp-action="ChangeQuantity" asp-route-id="@cartItem.ItemId" asp-route-delta="-1"><i class="fa-solid fa-minus"></i></a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-outline-secondary disabled"><i class="fa-solid fa-minus"></i></button>
+                        }
+                        
+                    </div>
+                </td>
+                <td><a class="btn btn-outline-danger" asp-action="Remove" asp-route-id="@cartItem.ItemId">Remove</a></td>
             </tr>
         }
     </tbody>

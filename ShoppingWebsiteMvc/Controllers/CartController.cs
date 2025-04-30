@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using ShoppingWebsiteMvc.Data;
 using ShoppingWebsiteMvc.Models;
@@ -51,9 +52,7 @@ namespace ShoppingWebsiteMvc.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
-            {
                 return Unauthorized();
-            }
 
             if (await _context.FindAsync<CartItem>(user.Id, itemId) is CartItem existing) {
                 existing.Quantity += quantity;
@@ -73,9 +72,42 @@ namespace ShoppingWebsiteMvc.Controllers
                 _context.Update(user);
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             string? url = Request.Headers.Referer;
             return url is not null ? Redirect(url) : RedirectToAction("index", "home");
+        }
+
+        public async Task<IActionResult> Remove(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
+            var item = await _context.FindAsync<CartItem>(user.Id, id);
+            if (item is not null)
+            {
+                _context.Remove(item);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> ChangeQuantity(int id, int delta)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            if (user == null)
+                return Unauthorized();
+
+            var item = await _context.FindAsync<CartItem>(user.Id, id);
+            if (item is not null)
+            {
+                if (item.Quantity == 0 && delta < 0) return base.BadRequest("Quantity cannot be negative");
+                item.Quantity += delta;
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index");
         }
     }
 }
