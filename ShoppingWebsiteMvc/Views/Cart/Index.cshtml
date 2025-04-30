@@ -15,25 +15,77 @@
     <tbody>
         @foreach (CartItem cartItem in Model.Items)
         {
-            <tr>
+            <tr id="@cartItem.ItemId">
                 <td><a asp-controller="StoreItems" asp-action="Details" asp-route-id="@cartItem.Item.Id">@cartItem.Item.Name</a></td>
                 <td>
                     <div class="btn-group">
-                        <a class="btn btn-outline-secondary" asp-action="ChangeQuantity" asp-route-id="@cartItem.ItemId" asp-route-delta="1"><i class="fa-solid fa-plus"></i></a>
-                        <span class="btn btn-dark disabled">@cartItem.Quantity</span>
-                        @if (cartItem.Quantity > 0)
+                        <button class="btn btn-outline-secondary" onclick="changeQuantity(@cartItem.ItemId, 1)"> <i class="fa-solid fa-plus"></i> </button>
+                        <span id="@($"{cartItem.ItemId}-quantity")" class="btn btn-dark disabled">@cartItem.Quantity</span>
+                        @if (cartItem.Quantity > 1)
                         {
-                            <a class="btn btn-outline-secondary" asp-action="ChangeQuantity" asp-route-id="@cartItem.ItemId" asp-route-delta="-1"><i class="fa-solid fa-minus"></i></a>
+                            <button id="@($"{cartItem.ItemId}-minus")" class="btn btn-outline-secondary" onclick="changeQuantity(@cartItem.ItemId, -1)"><i class="fa-solid fa-minus"></i></button>
                         }
                         else
                         {
-                            <button class="btn btn-outline-secondary disabled"><i class="fa-solid fa-minus"></i></button>
+                            <button id="@($"{cartItem.ItemId}-minus")" class="btn btn-outline-secondary disabled"><i class="fa-solid fa-minus"></i></button>
                         }
                         
                     </div>
                 </td>
-                <td><a class="btn btn-outline-danger" asp-action="Remove" asp-route-id="@cartItem.ItemId">Remove</a></td>
+                <td><button onclick="removeFromCart(@cartItem.ItemId)" class="btn btn-danger">Remove</button></td>
             </tr>
         }
     </tbody>
 </table>
+
+@section scripts {
+    <script>
+        async function removeFromCart(id) {
+            try {
+                const res = await fetch(`/cart/delete/${id}`, {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    $('tr').$('#'+id).remove();
+                } else {
+                    throw new Error(`Response: ${res.status}`);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function changeQuantity(id, delta) {
+            try {
+                const res = await fetch(`/cart/changequantity/${id}?delta=${delta}`, {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    updateQuantityDisplay(id, data);
+                } else {
+                    throw new Error(`Response: ${res.status}`);
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function updateQuantityDisplay(id, newValue) {
+            const btnMinus = $(`#${id}-minus`);
+            const spanQuantity = $(`#${id}-quantity`);
+            const currentValue = spanQuantity.text();
+
+            if (currentValue != 1 && newValue == 1) {
+                btnMinus.addClass('disabled');
+                btnMinus.unbind('click');
+            } else if (currentValue == 1 && newValue != 1) {
+                btnMinus.removeClass('disabled');
+                btnMinus.unbind('click');
+                btnMinus.click(function() { changeQuantity(id, -1) });
+            }
+            
+            spanQuantity.text(newValue);
+        }
+    </script>
+}

@@ -12,7 +12,7 @@ namespace ShoppingWebsiteMvc.Models
 
         public StoreItem Item { get; set; } = null!;
 
-        [Range(0, int.MaxValue)]
+        [Range(1, int.MaxValue)]
         public int Quantity { get; set; }
     }
 }

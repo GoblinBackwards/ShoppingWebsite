@@ -56,7 +56,6 @@ namespace ShoppingWebsiteMvc.Controllers
 
             if (await _context.FindAsync<CartItem>(user.Id, itemId) is CartItem existing) {
                 existing.Quantity += quantity;
-                _context.Update(existing);
             }
             else
             {
@@ -77,37 +76,45 @@ namespace ShoppingWebsiteMvc.Controllers
             return url is not null ? Redirect(url) : RedirectToAction("index", "home");
         }
 
-        public async Task<IActionResult> Remove(int id)
+        [HttpPost]
+        public async Task<IResult> Delete(int id)
         {
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
-                return Unauthorized();
+                return Results.Unauthorized();
 
             var item = await _context.FindAsync<CartItem>(user.Id, id);
-            if (item is not null)
+            if (item is null)
             {
-                _context.Remove(item);
-                await _context.SaveChangesAsync();
+                return Results.NotFound();
             }
-            return RedirectToAction("Index");
+            _context.Remove(item);
+            await _context.SaveChangesAsync();
+            return Results.NoContent();
         }
 
-        public async Task<IActionResult> ChangeQuantity(int id, int delta)
+        [HttpPost]
+        public async Task<IResult> ChangeQuantity(int id, int delta)
         {
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
-                return Unauthorized();
+                return Results.Unauthorized();
 
             var item = await _context.FindAsync<CartItem>(user.Id, id);
-            if (item is not null)
+            if (item is null)
             {
-                if (item.Quantity == 0 && delta < 0) return base.BadRequest("Quantity cannot be negative");
-                item.Quantity += delta;
-                await _context.SaveChangesAsync();
+                return Results.NotFound();
             }
-            return RedirectToAction("Index");
+            if (item.Quantity == 1 && delta < 0)
+            {
+                return Results.BadRequest("Quantity cannot be below 1");
+            }
+
+            item.Quantity += delta;
+            await _context.SaveChangesAsync();
+            return Results.Accepted(value: item.Quantity);
         }
     }
 }

@@ -1,10 +1,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using ShoppingWebsiteMvc.Data;
 using ShoppingWebsiteMvc.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSerilog(options => options
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+);
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("MainConnStr") ?? throw new InvalidOperationException("Connection string 'MainConnStr' not found.");
