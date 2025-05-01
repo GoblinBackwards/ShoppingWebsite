@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using ShoppingWebsiteMvc.Data;
 using ShoppingWebsiteMvc.Models;
 using ShoppingWebsiteMvc.Models.ViewModels;
@@ -47,33 +48,34 @@ namespace ShoppingWebsiteMvc.Controllers
             return View(viewModel);
         }
 
-        public async Task<IActionResult> Add(int itemId, int quantity = 1)
+        [HttpPost]
+        public async Task<IResult> Add(int id, int quantity = 1)
         {
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
-                return Unauthorized();
+                return Results.Unauthorized();
 
-            if (await _context.FindAsync<CartItem>(user.Id, itemId) is CartItem existing) {
+            if (await _context.FindAsync<CartItem>(user.Id, id) is CartItem existing) {
                 existing.Quantity += quantity;
             }
             else
             {
-                var item = await _context.StoreItems.FindAsync(itemId);
+                var item = await _context.StoreItems.FindAsync(id);
 
                 if (item == null)
                 {
-                    return NotFound();
+                    return Results.NotFound();
                 }
 
-                var cartItem = new CartItem { CustomerId = user.Id, ItemId = itemId, Quantity = quantity };
+                var cartItem = new CartItem { CustomerId = user.Id, ItemId = id, Quantity = quantity };
                 user.CartItems.Add(cartItem);
                 _context.Update(user);
             }
 
             await _context.SaveChangesAsync();
-            string? url = Request.Headers.Referer;
-            return url is not null ? Redirect(url) : RedirectToAction("index", "home");
+            int cartItemCount = await _context.Entry(user).Collection(u => u.CartItems).Query().CountAsync();
+            return Results.Ok(new { cartItemCount });
         }
 
         [HttpPost]

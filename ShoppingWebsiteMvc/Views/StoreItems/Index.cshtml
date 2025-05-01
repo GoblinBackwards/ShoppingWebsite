@@ -24,7 +24,7 @@
             <span class="text-center h3">@Html.DisplayFor(modelItem => item.Name)</span>
             <span class="h5">£@Html.DisplayFor(modelItem => item.PriceGBP)</span>
             <a class="btn btn-outline-primary mb-2" asp-action="Details" asp-route-id="@item.Id">View More</a>
-            <a class="btn btn-success" asp-controller="Cart" asp-action="Add" asp-route-itemId="@item.Id">Add To Cart <i class="fa-solid fa-cart-plus"></i></a>
+            <btn class="btn btn-success" onclick="addToCart(@item.Id)">Add To Cart <i class="fa-solid fa-cart-plus"></i></btn>
             @if (isAdmin)
             {
                 <div class="border p-2 mt-2 text-center">
@@ -35,3 +35,26 @@
         </div>
     }
 </div>
+
+@section scripts {
+    <script>
+        async function addToCart(id) {
+            try {
+                const res = await fetch(`/cart/add/${id}`, {
+                    method: 'POST'
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    const cartItemCount = data['cartItemCount'];
+                    console.log(`there are not ${cartItemCount} unique items in your cart`);
+                } else {
+                    throw new Exception(`Unsuccessful response: ${res}`)
+                }
+            }
+            catch (erorr) {
+                console.error(error);
+                alert('Failed to add to cart.');
+            }
+        }
+    </script>
+}
