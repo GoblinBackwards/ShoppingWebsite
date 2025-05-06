@@ -74,7 +74,7 @@ namespace ShoppingWebsiteMvc.Controllers
             }
 
             await _context.SaveChangesAsync();
-            int cartItemCount = await _context.Entry(user).Collection(u => u.CartItems).Query().CountAsync();
+            int cartItemCount = await _context.Entry(user).Collection(u => u.CartItems).Query().SumAsync(i => i.Quantity);
             return Results.Ok(new { cartItemCount });
         }
 

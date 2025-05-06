@@ -23,6 +23,10 @@
         <div class="d-grid flex-grow-1 border align-content-center rounded-2 p-3 m-2">
             <span class="text-center h3">@Html.DisplayFor(modelItem => item.Name)</span>
             <span class="h5">£@Html.DisplayFor(modelItem => item.PriceGBP)</span>
+            @if (item.ImageFileName != null)
+            {
+                <img src="@item.ImageFileName" />
+            }
             <a class="btn btn-outline-primary mb-2" asp-action="Details" asp-route-id="@item.Id">View More</a>
             <btn class="btn btn-success" onclick="addToCart(@item.Id)">Add To Cart <i class="fa-solid fa-cart-plus"></i></btn>
             @if (isAdmin)
@@ -46,7 +50,7 @@
                 if (res.ok) {
                     const data = await res.json();
                     const cartItemCount = data['cartItemCount'];
-                    console.log(`there are not ${cartItemCount} unique items in your cart`);
+                    console.log(`there are now ${cartItemCount} items in your cart`);
                 } else {
                     throw new Exception(`Unsuccessful response: ${res}`)
                 }

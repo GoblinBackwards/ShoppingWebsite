@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShoppingWebsiteMvc.Data;
 using ShoppingWebsiteMvc.Models;
+using ShoppingWebsiteMvc.Models.ViewModels;
 
 namespace ShoppingWebsiteMvc.Controllers
 {
@@ -15,10 +16,12 @@ namespace ShoppingWebsiteMvc.Controllers
     public class StoreItemsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _env;
 
-        public StoreItemsController(ApplicationDbContext context)
+        public StoreItemsController(ApplicationDbContext context, IWebHostEnvironment env)
         {
             _context = context;
+            _env = env;
         }
 
         // GET: StoreItems
@@ -58,15 +61,34 @@ namespace ShoppingWebsiteMvc.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,PriceGBP")] StoreItem storeItem)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,PriceGBP,Image")] CreateStoreItemViewModel model)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(storeItem);
+                StoreItem item = new()
+                {
+                    Name = model.Name,
+                    Description = model.Description,
+                    PriceGBP = model.PriceGBP,
+                    CartItems = []
+                };
+
+                if (model.Image != null)
+                {
+                    string fileName = model.Image.FileName;
+                    string newFileName = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(fileName));
+                    string relativeFilePath = Path.Combine("item_images", newFileName);
+                    string fullFilePath = Path.Combine(_env.WebRootPath, relativeFilePath);
+                    await using FileStream stream = new(fullFilePath, FileMode.Create);
+                    await model.Image.CopyToAsync(stream);
+                    item.ImageFileName = relativeFilePath;
+                }
+
+                _context.Add(item);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(storeItem);
+            return View(model);
         }
 
         // GET: StoreItems/Edit/5

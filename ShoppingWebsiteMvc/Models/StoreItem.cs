@@ -12,5 +12,6 @@ namespace ShoppingWebsiteMvc.Models
         [DisplayName("Price")]
         public required decimal PriceGBP { get; set; }
         public required List<CartItem> CartItems { get; set; } = [];
+        public string? ImageFileName { get; set; }
     }
 }
